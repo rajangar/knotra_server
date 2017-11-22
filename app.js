@@ -55,6 +55,20 @@ app.get('/api/getProfile', function (req, res) {
   knotraServiceObj.getProfile()
 })
 
+app.get('/api/getProfileById', function (req, res) {
+  //console.log("uid: " + req.query.userid);
+  //console.log("pwd: " + req.query.password);
+  let knotraServiceObj = new KnotraService(req, res)
+  knotraServiceObj.getProfileById()
+})
+
+app.get('/api/getProfileWithoutId', function (req, res) {
+  //console.log("uid: " + req.query.userid);
+  //console.log("pwd: " + req.query.password);
+  let knotraServiceObj = new KnotraService(req, res)
+  knotraServiceObj.getProfileWithoutId()
+})
+
 app.get('/api/getAllUsers', function (req, res) {
   //console.log("uid: " + req.query.userid);
   //console.log("pwd: " + req.query.password);
