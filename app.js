@@ -76,6 +76,13 @@ app.get('/api/getAllUsers', function (req, res) {
   knotraServiceObj.getAllUsers()
 })
 
+app.get('/api/getSearchFromProfile', function (req, res) {
+  //console.log("uid: " + req.query.userid);
+  //console.log("pwd: " + req.query.password);
+  let knotraServiceObj = new KnotraService(req, res)
+  knotraServiceObj.getSearchFromProfile()
+})
+
 app.listen(3000, function () {
   console.log('Knotra Web app service listening on port 3000!')
 })
