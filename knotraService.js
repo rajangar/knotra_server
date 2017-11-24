@@ -1,7 +1,7 @@
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
-const url = 'mongodb://rajangarg:knotra@clusterknotra-shard-00-00-nczgg.mongodb.net:27017,clusterknotra-shard-00-01-nczgg.mongodb.net:27017,clusterknotra-shard-00-02-nczgg.mongodb.net:27017/test?ssl=true&replicaSet=clusterknotra-shard-0&authSource=admin';
-// const url = 'mongodb://localhost:27017';
+// const url = 'mongodb://rajangarg:knotra@clusterknotra-shard-00-00-nczgg.mongodb.net:27017,clusterknotra-shard-00-01-nczgg.mongodb.net:27017,clusterknotra-shard-00-02-nczgg.mongodb.net:27017/test?ssl=true&replicaSet=clusterknotra-shard-0&authSource=admin';
+const url = 'mongodb://localhost:27017';
 const ObjectID=require('mongodb').ObjectID;
 
 class Profile {
@@ -490,8 +490,9 @@ class KnotraService{
             
                 //let cursor = db.collection('user').find({userid: userid1,password: password1});
                 //let cursor = db.collection('user').find();
-                /*let cursor = */db.collection('profile').findOne({_id: ObjectID(id1),userid:userid1}, function(err, doc) {
+                /*let cursor = db.collection('profile').findOne({_id: ObjectID(id1),userid:userid1}, function(err, doc) {*/
 
+                db.collection('profile').findOne({userid:userid1}, function(err, doc) {
                     //cursor.each(function(err, doc) {
                     assert.equal(err, null);
                     db.close();
@@ -501,58 +502,11 @@ class KnotraService{
                     if (doc != null) {
                         login = 'success';
                         //id = doc.profiletableid;
-                        userList.push(doc)
-                    } else {
-                        login = 'fail';
-                    }
-
-                    //let login = ''
-                    //   if(userList.length>0) {
-                    //       login = 'success';
-                    //   } else {
-                    //       login = 'fail';
-                    //   }
-                    return self.res.status(200).json({
-                        status: login,
-                        //id: id
-		                data : userList
-                    })
-            
-                });
-            });
-        }
-        catch(error){
-            return self.res.status(500).json({
-                status: 'error',
-                error: error
-            })
-        }
-    }
-
-    getProfileWithoutId(){
-        let self = this;
-        let userid1 = this.req.query.userid;
-
-        console.log("userid: " + userid1);
-        try{
-            MongoClient.connect(url, function(err, db) {
-                assert.equal(null, err);
-                let userList = []
-            
-                //let cursor = db.collection('user').find({userid: userid1,password: password1});
-                //let cursor = db.collection('user').find();
-                /*let cursor = */db.collection('profile').findOne({userid:userid1}, function(err, doc) {
-
-                    //cursor.each(function(err, doc) {
-                    assert.equal(err, null);
-                    db.close();
-                    //console.log("doc: " + doc);
-                    let login = '';
-                    //let id = '';
-                    if (doc != null) {
-                        login = 'success';
-                        //id = doc.profiletableid;
-                        userList.push(doc.skillarray)
+                        if (doc._id == id1) {
+                            userList.push(doc)
+                        } else {
+                            userList.push(doc.skillarray)
+                        }
                     } else {
                         login = 'fail';
                     }
@@ -583,16 +537,15 @@ class KnotraService{
     getSearchFromProfile(){
         let self = this;
         let query1 = this.req.query.query;
+        let id1 = this.req.query.id;
 
         console.log("query: " + query1);
         try{
             MongoClient.connect(url, function(err, db) {
                 assert.equal(null, err);
                 let userList = []
-                var pattern = '/\b' + query1 + '\b/i';
             
-                console.log("pattern: " + pattern);
-                db.collection('profile').createIndex({"name":"text"})
+                db.collection('profile').createIndex({"name":"text"});
                 let cursor = db.collection('profile').find(
                     {$text: {$search: query1}}/*, {score: {$meta: "textscore"}}).sort({score:{$meta:"textScore"}}*/);
                 //let cursor = db.collection('user').find();
@@ -608,7 +561,11 @@ class KnotraService{
                     if (doc != null) {
                         login = 'success';
                         //id = doc.profiletableid;
-                        userList.push(doc.skillarray)
+                        if(doc._id == id1) {
+                            userList.push(doc)
+                        } else {
+                            userList.push(doc.skillarray)
+                        }
                     } else {
                     //    login = 'fail';
                     //}
