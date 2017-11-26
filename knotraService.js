@@ -1,14 +1,16 @@
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
-// const url = 'mongodb://rajangarg:knotra@clusterknotra-shard-00-00-nczgg.mongodb.net:27017,clusterknotra-shard-00-01-nczgg.mongodb.net:27017,clusterknotra-shard-00-02-nczgg.mongodb.net:27017/test?ssl=true&replicaSet=clusterknotra-shard-0&authSource=admin';
-const url = 'mongodb://localhost:27017';
-const ObjectID=require('mongodb').ObjectID;
+const url = 'mongodb://rajangarg:knotra@clusterknotra-shard-00-00-nczgg.mongodb.net:27017,clusterknotra-shard-00-01-nczgg.mongodb.net:27017,clusterknotra-shard-00-02-nczgg.mongodb.net:27017/test?ssl=true&replicaSet=clusterknotra-shard-0&authSource=admin';
+//const url = 'mongodb://localhost:27017';
+const ObjectID = require('mongodb').ObjectID;
+const request = require('request');
 
 class Profile {
     constructor(
     userid,
     email,
-    name,
+    firstName,
+    lastName,
     phone,
     address,
     city,
@@ -183,6 +185,77 @@ class KnotraService{
         }
     }
 
+    getEmailUser(){
+        let self = this;
+    
+        let email1 = this.req.query.email;
+        console.log("email: " + email1);
+        try{
+            MongoClient.connect(url, function(err, db) {
+                assert.equal(null, err);
+                //let userList = []
+            
+                //let cursor = db.collection('user').find({userid: userid1,password: password1});
+                //let cursor = db.collection('user').find();
+                /*let cursor = */db.collection('user').findOne({email: email1}, function(err, doc) {
+
+                    assert.equal(err, null);
+                    db.close();
+                    let login = '';
+                    let id = '';
+                    let userid = '';
+                    if (doc != null) {
+                        login = 'success';
+                        //userList.push(doc)
+                    } else {
+                        login = 'fail';
+                    }
+                    return self.res.status(200).json({
+                        status: login,
+                    })
+                });
+            });
+        }
+        catch(error){
+            return self.res.status(500).json({
+                status: 'error',
+                error: error
+            })
+        }
+    }
+
+    getIdUser(){
+        let self = this;
+    
+        let userid1 = this.req.query.userid;
+        console.log("userid: " + userid1);
+        try{
+            MongoClient.connect(url, function(err, db) {
+                assert.equal(null, err);
+                db.collection('user').findOne({userid: userid1}, function(err, doc) {
+
+                    assert.equal(err, null);
+                    db.close();
+                    let login = '';
+                    if (doc != null) {
+                        login = 'success';
+                    } else {
+                        login = 'fail';
+                    }
+                    return self.res.status(200).json({
+                        status: login,
+                    })
+                });
+            });
+        }
+        catch(error){
+            return self.res.status(500).json({
+                status: 'error',
+                error: error
+            })
+        }
+    }
+
     deleteUser(){
         let self = this;
         console.log("Delete ");
@@ -258,40 +331,6 @@ class KnotraService{
         }
     }
 
-    getProfileJson(profile) {
-        let jsonprofile = '';
-        return jsonprofile = "{" +
-            "userid:" + profile.userid +
-            ",email:" + profile.email +
-            ",name:" + profile.name +
-            ",adddetails:{phone:" + profile.phone +
-            ",address:" + profile.address +
-            ",city:" + profile.city +
-            "},country:" + profile.country +
-            ",skillarray:[{s_expert:" + profile.s_expert +
-            ",s_ready_to_help:" + profile.s_ready_to_help +
-            "}],s_to_learn:" + profile.s_to_learn +
-
-            // ",phone:" + profile.phone +
-            // ",address:" + profile.address +
-            // ",city:" + profile.city +
-            // ",country:" + profile.country +
-            // ",s_expert:" + profile.s_expert +
-            // ",s_ready_to_help:" + profile.s_ready_to_help +
-            // ",s_to_learn:" + profile.s_to_learn +
-            ",ratings:" + profile.ratings +
-            ",credits:" + profile.credits +
-            ",credits_to_provide:" + profile.credits_to_provide +
-            ",helper_response_per:" + profile.helper_response_per +
-            ",help_take_response_per:" + profile.help_take_response_per +
-            ",help_taker_pages_id:" + profile.help_taker_pages_id +
-            ",help_provider_pages_id:" + profile.help_provider_pages_id +
-            ",reviews:" + profile.reviews +
-            ",profile_summary:" + profile.profile_summary +
-            ",profile_explanation:" + profile.profile_explanation +
-        "}";
-    }
-
     addProfile() {
         let self = this;
 
@@ -299,7 +338,8 @@ class KnotraService{
 
         profile.userid = this.req.body.userid;
         profile.email = this.req.body.email;
-        profile.name = this.req.body.name;
+        profile.firstName = this.req.body.firstName;
+        profile.lastName = this.req.body.lastName;
         profile.phone = this.req.body.phone;
         profile.address = this.req.body.address;
         profile.city = this.req.body.city;
@@ -323,15 +363,36 @@ class KnotraService{
         //addUserFromAddProfile();
 
         console.log("addProfile:userid: " + profile.userid + ",email: " + profile.email + ",password: " + profile.password);
+
+        console.log ('resp = ' + this.req.body.g_recaptcha_response);
+        
+         
+        var url1 = 'https://www.google.com/recaptcha/api/siteverify?secret=6LeJcjoUAAAAAFBSIYNzcZleibkmG6HMligiKvMS&response=' + this.req.body.g_recaptcha_response;
+        var options = {
+          url: url1,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        };
+        
+        request(options, function(err, res1, body) {
+          if (res1 && (res1.statusCode === 200 || res1.statusCode === 201)) {
+              
+            body = JSON.parse (body);
+            console.log(body);
+            console.log("success: " + body.success);
+            if (body.success) {
+
         try{
             MongoClient.connect(url, function(err, db) {
                 assert.equal(null, err);
 
-                //const jsonprofile = self.getProfileJson(profile);
                 db.collection('profile').insertOne({
                 "userid": profile.userid,
                 "email": profile.email,
-                "name": profile.name,
+                "firstname": profile.firstName,
+                "lastname": profile.lastName,
                 "adddetails":{"phone": profile.phone,
                 "address": profile.address,
                 "city": profile.city},
@@ -369,6 +430,14 @@ class KnotraService{
                 error: error
             })
         }
+    }
+    else {
+        return self.res.status(200).json({
+            status: 'errorcaptcha'
+        })
+    }
+}
+    });
     }
 
     getProfile(){
@@ -545,7 +614,7 @@ class KnotraService{
                 assert.equal(null, err);
                 let userList = []
             
-                db.collection('profile').createIndex({"name":"text"});
+                db.collection('profile').createIndex({"firstname":"text"});
                 let cursor = db.collection('profile').find(
                     {$text: {$search: query1}}/*, {score: {$meta: "textscore"}}).sort({score:{$meta:"textScore"}}*/);
                 //let cursor = db.collection('user').find();

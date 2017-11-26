@@ -11,25 +11,29 @@ app.all("/api/*", function (req, res, next) {
     return next();
 });
 
-
 app.post('/api/addUser', function (req, res) {
-  //console.log("1userid: " + req.body.userid + ",password: " + req.body.password);
   let knotraServiceObj = new KnotraService(req, res)
   knotraServiceObj.addUser()
 })
 
 app.get('/api/getUserById', function (req, res) {
-  //console.log("uid: " + req.query.userid);
-  //console.log("pwd: " + req.query.password);
   let knotraServiceObj = new KnotraService(req, res)
   knotraServiceObj.getUserById()
 })
 
 app.get('/api/getUserByEmail', function (req, res) {
-  //console.log("uid: " + req.query.userid);
-  //console.log("pwd: " + req.query.password);
   let knotraServiceObj = new KnotraService(req, res)
   knotraServiceObj.getUserByEmail()
+})
+
+app.get('/api/getEmailUser', function (req, res) {
+  let knotraServiceObj = new KnotraService(req, res)
+  knotraServiceObj.getEmailUser()
+})
+
+app.get('/api/getIdUser', function (req, res) {
+  let knotraServiceObj = new KnotraService(req, res)
+  knotraServiceObj.getIdUser()
 })
 
 app.delete('/api/deleteUser', function (req, res) {
@@ -43,35 +47,26 @@ app.delete('/api/deleteProfile', function (req, res) {
 })
 
 app.post('/api/addProfile', function (req, res) {
-  //console.log("1userid: " + req.body.userid + ",password: " + req.body.password);
   let knotraServiceObj = new KnotraService(req, res)
   knotraServiceObj.addProfile()
 })
 
 app.get('/api/getProfile', function (req, res) {
-  //console.log("uid: " + req.query.userid);
-  //console.log("pwd: " + req.query.password);
   let knotraServiceObj = new KnotraService(req, res)
   knotraServiceObj.getProfile()
 })
 
 app.get('/api/getProfileById', function (req, res) {
-  //console.log("uid: " + req.query.userid);
-  //console.log("pwd: " + req.query.password);
   let knotraServiceObj = new KnotraService(req, res)
   knotraServiceObj.getProfileById()
 })
 
 app.get('/api/getAllUsers', function (req, res) {
-  //console.log("uid: " + req.query.userid);
-  //console.log("pwd: " + req.query.password);
   let knotraServiceObj = new KnotraService(req, res)
   knotraServiceObj.getAllUsers()
 })
 
 app.get('/api/getSearchFromProfile', function (req, res) {
-  //console.log("uid: " + req.query.userid);
-  //console.log("pwd: " + req.query.password);
   let knotraServiceObj = new KnotraService(req, res)
   knotraServiceObj.getSearchFromProfile()
 })
