@@ -4,6 +4,14 @@ const url = 'mongodb://rajangarg:knotra@clusterknotra-shard-00-00-nczgg.mongodb.
 //const url = 'mongodb://localhost:27017';
 const ObjectID = require('mongodb').ObjectID;
 const request = require('request');
+const nodemailer = require('nodemailer');
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'rajan.garg.tiet@gmail.com',
+      pass: 'janakmama2'
+    }
+});
 
 class Profile {
     constructor(
@@ -98,9 +106,13 @@ class KnotraService{
                     //console.log("doc: " + doc);
                     let login = '';
                     let id = '';
+                    let email = '';
+                    let verified = false;
                     if (doc != null) {
                         login = 'success';
                         id = doc.profiletableid;
+                        email = doc.email;
+                        verified = doc.verified;
                         //userList.push(doc)
                     } else {
                         login = 'fail';
@@ -114,7 +126,9 @@ class KnotraService{
                     //   }
                     return self.res.status(200).json({
                         status: login,
-                        id: id
+                        id: id,
+                        email: email,
+                        verified: verified
 		                //data : userList
                     })
             
@@ -151,10 +165,12 @@ class KnotraService{
                     let login = '';
                     let id = '';
                     let userid = '';
+                    let verified = false;
                     if (doc != null) {
                         login = 'success';
                         id = doc.profiletableid;
                         userid = doc.userid;
+                        verified = doc.verified;
                         //userList.push(doc)
                     } else {
                         login = 'fail';
@@ -169,7 +185,8 @@ class KnotraService{
                     return self.res.status(200).json({
                         status: login,
                         id: id,
-                        userid: userid
+                        userid: userid,
+                        verified: verified
 		                //data : userList
                     })
             
@@ -298,7 +315,7 @@ class KnotraService{
         }
     }
 
-    addUserFromAddProfile(profile) {
+    addUserFromAddProfile(profile, randomnumber) {
         let self = this;
         let userid = profile.userid;
         let email = profile.email;
@@ -313,7 +330,9 @@ class KnotraService{
                     "userid": profile.userid,
                     "email": profile.email,
                     "password": profile.password,
-                    "profiletableid": profile.profiletableid
+                    "profiletableid": profile.profiletableid,
+                    "randomnumber": randomnumber,
+                    "verified": false
                 }, function(err, doc) {
                 // self.insert(userid, email, password, profiletableid, db, function(){
                     //db.close()
@@ -359,6 +378,8 @@ class KnotraService{
         profile.profile_explanation = this.req.body.profile_explanation;
 
         profile.password = this.req.body.password;
+
+        var randomnumber = Math.floor(Math.random() * 899999 + 100000);
 
         //addUserFromAddProfile();
 
@@ -416,7 +437,22 @@ class KnotraService{
                     db.close()
                     if (doc) {
                         profile.profiletableid = doc.insertedId;
-                        self.addUserFromAddProfile(profile);
+                        self.addUserFromAddProfile(profile, randomnumber);
+                        var text1 = 'Please find below code to verify your email:\n\nUserId: ' + profile.userid + '\nCode: ' + randomnumber;
+                        var mailOptions = {
+                            from: 'knotra',
+                            to: profile.email,
+                            subject: 'Knotra Email Verification',
+                            text: text1
+                        };
+                          
+                        transporter.sendMail(mailOptions, function(error, info){
+                            if (error) {
+                              console.log(error);
+                            } else {
+                              console.log('Email sent: ' + info.response);
+                            }
+                        });
                     }
                     return self.res.status(200).json({
                         status: 'success'
@@ -614,9 +650,10 @@ class KnotraService{
                 assert.equal(null, err);
                 let userList = []
             
-                db.collection('profile').createIndex({"firstname":"text"});
+                //db.collection('profile').dropIndexes();
+                db.collection('profile').createIndex({"firstname":"text", "lastname":"text"});
                 let cursor = db.collection('profile').find(
-                    {$text: {$search: query1}}/*, {score: {$meta: "textscore"}}).sort({score:{$meta:"textScore"}}*/);
+                    {$text: {$search: query1}}, {score: {$meta: "textScore"}}).sort({score:{$meta:"textScore"}});
                 //let cursor = db.collection('user').find();
                 /*let cursor = db.collection('profile').findOne({userid:userid1}, function(err, doc) {*/
 
@@ -654,6 +691,126 @@ class KnotraService{
             
                 });
             });
+        }
+        catch(error){
+            return self.res.status(500).json({
+                status: 'error',
+                error: error
+            })
+        }
+    }
+
+    getVerification(){
+        let self = this;
+    
+        let userid1 = this.req.query.userid;
+        let email1 = this.req.query.email;
+        let randomnumber1 = this.req.query.randomnumber;
+        console.log("email: " + email1 + ",userid: " + userid1 + ",random: " + randomnumber1);
+        try{
+            MongoClient.connect(url, function(err, db) {
+                assert.equal(null, err);
+                db.collection('user').findOne({userid: userid1,email: email1,randomnumber: +randomnumber1}, function(err, doc) {
+
+                //cursor.each(function(err, doc) {
+                    assert.equal(err, null);
+                    db.close();
+                    //console.log("doc: " + doc);
+                    let login = '';
+                    if (doc != null) {
+                        login = 'success';
+                    } else {
+                        login = 'fail';
+                    }
+
+                    return self.res.status(200).json({
+                        status: login,
+                    })
+            
+                });
+            });
+        }
+        catch(error){
+            return self.res.status(500).json({
+                status: 'error',
+                error: error
+            })
+        }
+    }
+
+    setVerification(){
+        let self = this;
+    
+        let userid1 = this.req.query.userid;
+        let email1 = this.req.query.email;
+        let verified1 = (this.req.query.verified == 'true');
+
+        console.log("email: " + email1 + ",userid: " + userid1 + ",verified: " + verified1);
+        try{
+            MongoClient.connect(url, function(err, db) {
+                assert.equal(null, err);
+                let result = db.collection('user').updateOne({userid: userid1,email: email1},{$set: {verified: verified1}});
+
+                    assert.equal(err, null);
+                    db.close();
+                    //console.log("doc: " + doc);
+                    let login = '';
+                    login = 'success';
+
+                    return self.res.status(200).json({
+                        status: login,
+                    })
+            
+                })
+        }
+        catch(error){
+            return self.res.status(500).json({
+                status: 'error',
+                error: error
+            })
+        }
+    }
+
+    resetRandom(){
+        let self = this;
+    
+        var randomnumber = Math.floor(Math.random() * 899999 + 100000);
+        let userid1 = this.req.query.userid;
+        let email1 = this.req.query.email;
+        
+        console.log("email: " + email1 + ",userid: " + userid1 + ",random: " + randomnumber);
+        try{
+            MongoClient.connect(url, function(err, db) {
+                assert.equal(null, err);
+                let result = db.collection('user').updateOne({userid: userid1,email: email1},{$set: {randomnumber: randomnumber}});
+                
+                var text1 = 'Please find below code to verify your email:\n\nUserId: ' + userid1 + '\nCode: ' + randomnumber;
+                var mailOptions = {
+                    from: 'knotra',
+                    to: email1,
+                    subject: 'Knotra Email Verification',
+                    text: text1
+                };
+                  
+                transporter.sendMail(mailOptions, function(error, info){
+                    if (error) {
+                      console.log(error);
+                    } else {
+                      console.log('Email sent: ' + info.response);
+                    }
+                });
+
+                    assert.equal(err, null);
+                    db.close();
+                    //console.log("doc: " + doc);
+                    let login = '';
+                    login = 'success';
+
+                    return self.res.status(200).json({
+                        status: login,
+                    })
+            
+                })
         }
         catch(error){
             return self.res.status(500).json({

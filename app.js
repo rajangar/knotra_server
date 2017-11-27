@@ -71,6 +71,21 @@ app.get('/api/getSearchFromProfile', function (req, res) {
   knotraServiceObj.getSearchFromProfile()
 })
 
+app.get('/api/getVerification', function (req, res) {
+  let knotraServiceObj = new KnotraService(req, res)
+  knotraServiceObj.getVerification()
+})
+
+app.put('/api/setVerification', function (req, res) {
+  let knotraServiceObj = new KnotraService(req, res)
+  knotraServiceObj.setVerification()
+})
+
+app.put('/api/resetRandom', function (req, res) {
+  let knotraServiceObj = new KnotraService(req, res)
+  knotraServiceObj.resetRandom()
+})
+
 app.listen(3000, function () {
   console.log('Knotra Web app service listening on port 3000!')
 })
