@@ -819,6 +819,59 @@ class KnotraService{
             })
         }
     }
+
+    getPassword(){
+        let self = this;
+    
+        let email1 = this.req.query.email;
+        console.log("email: " + email1);
+        try{
+            MongoClient.connect(url, function(err, db) {
+                assert.equal(null, err);
+                db.collection('user').findOne({email: email1}, function(err, doc) {
+
+                //cursor.each(function(err, doc) {
+                    assert.equal(err, null);
+                    db.close();
+                    //console.log("doc: " + doc);
+                    let login = '';
+                    if (doc != null) {
+                        login = 'success';
+                        var text1 = 'Please find below password for your login:\n\nUserId: ' + doc.userid +
+                        '\nPassword: ' + doc.password;
+                        var mailOptions = {
+                            from: 'knotra',
+                            to: email1,
+                            subject: 'Knotra Forgot Password',
+                            text: text1
+                        };
+                          
+                        transporter.sendMail(mailOptions, function(error, info){
+                            if (error) {
+                              console.log(error);
+                              login = 'fail'
+                            } else {
+                              console.log('Email sent: ' + info.response);
+                            }
+                        });
+                    } else {
+                        login = 'fail';
+                    }
+
+                    return self.res.status(200).json({
+                        status: login,
+                    })
+            
+                });
+            });
+        }
+        catch(error){
+            return self.res.status(500).json({
+                status: 'error',
+                error: error
+            })
+        }
+    }
 }
 
 module.exports = KnotraService

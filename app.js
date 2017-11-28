@@ -86,6 +86,11 @@ app.put('/api/resetRandom', function (req, res) {
   knotraServiceObj.resetRandom()
 })
 
+app.get('/api/getPassword', function (req, res) {
+  let knotraServiceObj = new KnotraService(req, res)
+  knotraServiceObj.getPassword()
+})
+
 app.listen(3000, function () {
   console.log('Knotra Web app service listening on port 3000!')
 })
