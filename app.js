@@ -138,6 +138,14 @@ app.post('/api/savePicture', upload.single('avatar'), function (req, res, next) 
   knotraServiceObj.savePicture()
 })
 
+app.get('/api/getAvatar', function (req, res) {
+  
+  // console.log('File: ' + __dirname + '\\' + 'Images\\61ccf7f2a01c76db7a16c28ad0db1fd5.png')
+  // return res.sendFile(__dirname + '\\' + 'Images\\61ccf7f2a01c76db7a16c28ad0db1fd5.png')
+  let knotraServiceObj = new KnotraService(req, res)
+  knotraServiceObj.getAvatar()
+})
+
 app.listen(3000, function () {
   console.log('Knotra Web app service listening on port 3000!')
 })

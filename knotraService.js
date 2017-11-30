@@ -1,7 +1,7 @@
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
-//const url = 'mongodb://rajangarg:knotra@clusterknotra-shard-00-00-nczgg.mongodb.net:27017,clusterknotra-shard-00-01-nczgg.mongodb.net:27017,clusterknotra-shard-00-02-nczgg.mongodb.net:27017/test?ssl=true&replicaSet=clusterknotra-shard-0&authSource=admin';
-const url = 'mongodb://localhost:27017';
+const url = 'mongodb://rajangarg:knotra@clusterknotra-shard-00-00-nczgg.mongodb.net:27017,clusterknotra-shard-00-01-nczgg.mongodb.net:27017,clusterknotra-shard-00-02-nczgg.mongodb.net:27017/test?ssl=true&replicaSet=clusterknotra-shard-0&authSource=admin';
+//const url = 'mongodb://localhost:27017';
 const ObjectID = require('mongodb').ObjectID;
 const request = require('request');
 const nodemailer = require('nodemailer');
@@ -945,6 +945,47 @@ class KnotraService{
     }
     }
     });*/
+    }
+
+    getAvatar() {
+        let self = this;
+        
+        let userid1 = this.req.query.userid;
+        console.log("userid: " + userid1);
+        try{
+            MongoClient.connect(url, function(err, db) {
+                assert.equal(null, err);
+                db.collection('profile').findOne({userid: userid1}, function(err, doc) {
+
+                //cursor.each(function(err, doc) {
+                    assert.equal(err, null);
+                    db.close();
+                    //console.log("doc: " + doc);
+                    let login = '';
+                    var image = '';
+                    if (doc != null) {
+                        login = 'success';
+                        image = doc.imageFile;
+                    } else {
+                        login = 'fail';
+                    }
+
+                    console.log('File: ' + __dirname + '\\' + 'Images\\61ccf7f2a01c76db7a16c28ad0db1fd5.png')
+                    // return res.sendFile(__dirname + '\\' + image)
+                    return self.res.sendFile(__dirname + '\\' + image)
+                    /* return self.res.status(200).json({
+                        status: login,
+                    }) */
+            
+                });
+            });
+        }
+        catch(error){
+            return self.res.status(500).json({
+                status: 'error',
+                error: error
+            })
+        }
     }
 }
 
