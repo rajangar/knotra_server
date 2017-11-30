@@ -1,9 +1,31 @@
 const express = require('express')
+const multer  = require('multer')
+const morgan = require('morgan')
+const crypto = require('crypto')
+const path = require('path')
+
+
+const storage = multer.diskStorage({
+  destination: './Images/',
+  filename: function (req, file, callback) {
+    console.log('filename function')
+    crypto.pseudoRandomBytes(16, function(err, raw) {
+      if (err) return callback(err)
+    
+      callback(null, raw.toString('hex') + path.extname(file.originalname))
+    })
+  }
+})
+
+const upload = multer({storage: storage})
+
 const KnotraService  = require('./knotraService')
 const app = express()
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended : false}))
+app.use(bodyParser.urlencoded({ extended : true}))
+app.use(morgan('dev'))
+app.use(express.static(path.join(__dirname, 'Images')));
 app.all("/api/*", function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With");
@@ -89,6 +111,31 @@ app.put('/api/resetRandom', function (req, res) {
 app.get('/api/getPassword', function (req, res) {
   let knotraServiceObj = new KnotraService(req, res)
   knotraServiceObj.getPassword()
+})
+
+app.post('/api/savePicture', upload.single('avatar'), function (req, res, next) {
+  console.log('1userid: ' + req.body.userid)
+  console.log('name: ' + req.body.avatar)
+  
+  if (!req.file) {
+    console.log("No file received");
+    return res.send({
+      success: false
+    });
+
+  } else {
+    console.log('file received');
+      console.log('uploaded');
+      const host = req.hostname
+      const filePath = req.protocol + "://" + host + '/' + req.file.path
+      console.log('host: ' + host + ',file: ' + filePath + ',dirname: ' + __dirname)
+      console.log('2userid: ' + req.body.userid)
+      
+    return res.sendFile(__dirname + '\\' + req.file.path)
+    
+  }
+  let knotraServiceObj = new KnotraService(req, res)
+  knotraServiceObj.savePicture()
 })
 
 app.listen(3000, function () {

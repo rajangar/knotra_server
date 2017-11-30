@@ -1,7 +1,7 @@
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
-const url = 'mongodb://rajangarg:knotra@clusterknotra-shard-00-00-nczgg.mongodb.net:27017,clusterknotra-shard-00-01-nczgg.mongodb.net:27017,clusterknotra-shard-00-02-nczgg.mongodb.net:27017/test?ssl=true&replicaSet=clusterknotra-shard-0&authSource=admin';
-//const url = 'mongodb://localhost:27017';
+//const url = 'mongodb://rajangarg:knotra@clusterknotra-shard-00-00-nczgg.mongodb.net:27017,clusterknotra-shard-00-01-nczgg.mongodb.net:27017,clusterknotra-shard-00-02-nczgg.mongodb.net:27017/test?ssl=true&replicaSet=clusterknotra-shard-0&authSource=admin';
+const url = 'mongodb://localhost:27017';
 const ObjectID = require('mongodb').ObjectID;
 const request = require('request');
 const nodemailer = require('nodemailer');
@@ -871,6 +871,80 @@ class KnotraService{
                 error: error
             })
         }
+    }
+
+    savePicture() {
+        let self = this;
+
+        /* try{
+            MongoClient.connect(url, function(err, db) {
+                assert.equal(null, err);
+
+                db.collection('profile').insertOne({
+                "userid": profile.userid,
+                "email": profile.email,
+                "firstname": profile.firstName,
+                "lastname": profile.lastName,
+                "adddetails":{"phone": profile.phone,
+                "address": profile.address,
+                "city": profile.city},
+                "country": profile.country,
+                "skillarray":[{"s_expert": profile.s_expert,
+                "s_ready_to_help": profile.s_ready_to_help}],
+                "s_to_learn": profile.s_to_learn,
+                "ratings": profile.ratings,
+                "credits": profile.credits,
+                "credits_to_provide": profile.credits_to_provide,
+                "helper_response_per": profile.helper_response_per,
+                "help_take_response_per": profile.help_take_response_per,
+                "help_taker_pages_id": profile.help_taker_pages_id,
+                "help_provider_pages_id": profile.help_provider_pages_id,
+                "reviews": profile.reviews,
+                "profile_summary": profile.profile_summary,
+                "profile_explanation": profile.profile_explanation
+            }, function(err, doc) {
+                
+                    assert.equal(null, err);
+                    db.close()
+                    if (doc) {
+                        profile.profiletableid = doc.insertedId;
+                        self.addUserFromAddProfile(profile, randomnumber);
+                        var text1 = 'Please find below code to verify your email:\n\nUserId: ' + profile.userid + '\nCode: ' + randomnumber;
+                        var mailOptions = {
+                            from: 'knotra',
+                            to: profile.email,
+                            subject: 'Knotra Email Verification',
+                            text: text1
+                        };
+                          
+                        transporter.sendMail(mailOptions, function(error, info){
+                            if (error) {
+                              console.log(error);
+                            } else {
+                              console.log('Email sent: ' + info.response);
+                            }
+                        });
+                    }
+                    return self.res.status(200).json({
+                        status: 'success'
+                    })
+                })
+            });
+        }
+        catch(error){
+            return self.res.status(500).json({
+                status: 'error',
+                error: error
+            })
+        }
+    }
+    else {
+        return self.res.status(200).json({
+            status: 'errorcaptcha'
+        })
+    }
+    }
+    });*/
     }
 }
 
