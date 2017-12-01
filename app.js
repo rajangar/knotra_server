@@ -114,7 +114,7 @@ app.get('/api/getPassword', function (req, res) {
 })
 
 app.post('/api/savePicture', upload.single('avatar'), function (req, res, next) {
-  console.log('1userid: ' + req.body.userid)
+  /*console.log('1userid: ' + req.body.userid)
   console.log('name: ' + req.body.avatar)
   
   if (!req.file) {
@@ -133,7 +133,7 @@ app.post('/api/savePicture', upload.single('avatar'), function (req, res, next) 
       
     return res.sendFile(__dirname + '\\' + req.file.path)
     
-  }
+  }*/
   let knotraServiceObj = new KnotraService(req, res)
   knotraServiceObj.savePicture()
 })
