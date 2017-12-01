@@ -12,6 +12,7 @@ const transporter = nodemailer.createTransport({
       pass: 'janakmama2'
     }
 });
+const fs = require('fs');
 
 class Profile {
     constructor(
@@ -896,17 +897,22 @@ class KnotraService{
         try{
             MongoClient.connect(url, function(err, db) {
                 assert.equal(null, err);
+                
+                db.collection('profile').findOne({userid: userid1}, function(err, doc) {
+                    if (doc != null && doc.avatar != null && fs.existsSync(__dirname + '\\' + doc.avatar)) {
+                        fs.unlinkSync(__dirname + '\\' + doc.avatar)
+                    }
+                    let result = db.collection('profile').updateOne({userid: userid1},{$set: {avatar: filePath}});
 
-                let result = db.collection('profile').updateOne({userid: userid1},{$set: {avatar: filePath}});
+                    assert.equal(err, null);
+                    db.close();
+                    //console.log("doc: " + doc);
+                    let login = '';
+                    login = 'success';
 
-                assert.equal(err, null);
-                db.close();
-                //console.log("doc: " + doc);
-                let login = '';
-                login = 'success';
-
-                return self.res.status(200).json({
-                    status: login,
+                    return self.res.status(200).json({
+                        status: login,
+                    })
                 })
         
             })
