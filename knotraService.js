@@ -899,10 +899,47 @@ class KnotraService{
                 assert.equal(null, err);
                 
                 db.collection('profile').findOne({userid: userid1}, function(err, doc) {
-                    if (doc != null && doc.avatar != null && fs.existsSync(__dirname + '\\' + doc.avatar)) {
+                    if (doc != null && doc.avatar != null && doc.avatar != '' && fs.existsSync(__dirname + '\\' + doc.avatar)) {
                         fs.unlinkSync(__dirname + '\\' + doc.avatar)
                     }
                     let result = db.collection('profile').updateOne({userid: userid1},{$set: {avatar: filePath}});
+
+                    assert.equal(err, null);
+                    db.close();
+                    //console.log("doc: " + doc);
+                    let login = '';
+                    login = 'success';
+
+                    return self.res.status(200).json({
+                        status: login,
+                    })
+                })
+        
+            })
+        }
+        catch(error){
+            return self.res.status(500).json({
+                status: 'error',
+                error: error
+            })
+        }
+    }
+
+    removePicture() {
+        let self = this;
+        
+        var userid1 = self.req.body.userid
+        console.log('2userid: ' + userid1)
+        
+        try{
+            MongoClient.connect(url, function(err, db) {
+                assert.equal(null, err);
+                
+                db.collection('profile').findOne({userid: userid1}, function(err, doc) {
+                    if (doc != null && doc.avatar != null && doc.avatar != '' && fs.existsSync(__dirname + '\\' + doc.avatar)) {
+                        fs.unlinkSync(__dirname + '\\' + doc.avatar)
+                    }
+                    let result = db.collection('profile').updateOne({userid: userid1},{$set: {avatar: ''}});
 
                     assert.equal(err, null);
                     db.close();

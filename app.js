@@ -138,6 +138,11 @@ app.post('/api/savePicture', upload.single('avatar'), function (req, res, next) 
   knotraServiceObj.savePicture()
 })
 
+app.post('/api/removePicture', function (req, res) {
+  let knotraServiceObj = new KnotraService(req, res)
+  knotraServiceObj.removePicture()
+})
+
 app.get('/api/getAvatar', function (req, res) {
   
   // console.log('File: ' + __dirname + '\\' + 'Images\\61ccf7f2a01c76db7a16c28ad0db1fd5.png')
