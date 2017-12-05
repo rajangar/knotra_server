@@ -3,6 +3,7 @@ const multer  = require('multer')
 const morgan = require('morgan')
 const crypto = require('crypto')
 const path = require('path')
+const request = require('request');
 
 
 const storage = multer.diskStorage({
@@ -153,6 +154,11 @@ app.get('/api/getAvatar', function (req, res) {
   knotraServiceObj.getAvatar()
 })
 
+app.put('/api/setUserActive', function (req, res) {
+  let knotraServiceObj = new KnotraService(req, res)
+  knotraServiceObj.setUserActive()
+})
+
 var peopleList = []
 
 io.on('connection', function(socket){
@@ -167,6 +173,7 @@ io.on('connection', function(socket){
     if (ind < 0 ) {
       peopleList.push({socket: socket.id, userid: val})
     }
+    io.emit('setUserActive', "true")
     console.log (peopleList)
   })
   socket.on('disconnect', function () {
@@ -175,7 +182,24 @@ io.on('connection', function(socket){
       return skt.socket === socket.id
     }
     var ind = peopleList.findIndex(findSocket)
-    peopleList.splice(ind, 1)
+    if (ind > -1) {
+      var id = peopleList[ind].userid
+      peopleList.splice(ind, 1)
+      
+      function findUser(user) {
+        return user.userid === id
+      }
+
+      var index = peopleList.findIndex(findUser)
+      if (index < 0) {
+        let url = 'http://localhost:3000/api/setUserActive?userid=' + id + '&active=false'
+        request.put(url, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                console.log(body) // Print the google web page.
+             }
+        })
+      }
+    }
     console.log (peopleList)
   })
   socket.on('send_message', function (val) {

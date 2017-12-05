@@ -1007,6 +1007,39 @@ class KnotraService{
             })
         }
     }
+
+    setUserActive(){
+        let self = this;
+
+        let userid1 = this.req.query.userid;
+        let active1 = (this.req.query.active == 'true');
+        
+        console.log("userid: " + userid1 + ",active: " + active1);
+        try{
+            MongoClient.connect(url, function(err, db) {
+                assert.equal(null, err);
+                let result = db.collection('user').updateOne({userid: userid1},{$set: {active: active1}});
+
+                    assert.equal(err, null);
+                    db.close();
+                    //console.log("doc: " + doc);
+                    let login = '';
+                    login = 'success';
+
+                        return self.res.status(200).json({
+                            status: login,
+                        })
+            
+                })
+        }
+        catch(error){
+                return self.res.status(500).json({
+                    status: 'error',
+                    error: error
+                })
+        }
+    }
+
 }
 
 module.exports = KnotraService
