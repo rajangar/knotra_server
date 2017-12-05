@@ -21,6 +21,8 @@ const upload = multer({storage: storage})
 
 const KnotraService  = require('./knotraService')
 const app = express()
+const http = require('http').Server(app)
+const io = require('socket.io')(http)
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended : true}))
@@ -151,6 +153,51 @@ app.get('/api/getAvatar', function (req, res) {
   knotraServiceObj.getAvatar()
 })
 
-app.listen(3000, function () {
+var peopleList = []
+
+io.on('connection', function(socket){
+  
+  console.log('a user connected')
+  socket.on('register_user', function (val) {
+    console.log('Register User: ' + val + ',socid: ' + socket.id)
+    function findSocket(skt) {
+      return skt.socket === socket.id
+    }
+    var ind = peopleList.findIndex(findSocket)
+    if (ind < 0 ) {
+      peopleList.push({socket: socket.id, userid: val})
+    }
+    console.log (peopleList)
+  })
+  socket.on('disconnect', function () {
+    console.log('disconnect user: ')
+    function findSocket(skt) {
+      return skt.socket === socket.id
+    }
+    var ind = peopleList.findIndex(findSocket)
+    peopleList.splice(ind, 1)
+    console.log (peopleList)
+  })
+  socket.on('send_message', function (val) {
+    console.log('1. msg received: ' + val.message + ',id = ' + val.id)
+    function findUser(user) {
+      return user.userid === val.id
+    }
+    var pplLst = peopleList.filter(findUser)
+    for (var ppls of pplLst) {
+      if (io.sockets.sockets[ppls.socket] != undefined) {
+        io.to(ppls.socket).emit('getMessage', val.message);
+      } else {
+        console.log('Socket not connected ' + ppls.socket)
+      }
+    }
+    if(pplLst.length == 0) {
+      console.log('Userid not found ' + val.id)
+    }
+  })
+  
+})
+
+http.listen(3000, function () {
   console.log('Knotra Web app service listening on port 3000!')
 })

@@ -1,7 +1,7 @@
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
-const url = 'mongodb://rajangarg:knotra@clusterknotra-shard-00-00-nczgg.mongodb.net:27017,clusterknotra-shard-00-01-nczgg.mongodb.net:27017,clusterknotra-shard-00-02-nczgg.mongodb.net:27017/test?ssl=true&replicaSet=clusterknotra-shard-0&authSource=admin';
-// const url = 'mongodb://localhost:27017';
+// const url = 'mongodb://rajangarg:knotra@clusterknotra-shard-00-00-nczgg.mongodb.net:27017,clusterknotra-shard-00-01-nczgg.mongodb.net:27017,clusterknotra-shard-00-02-nczgg.mongodb.net:27017/test?ssl=true&replicaSet=clusterknotra-shard-0&authSource=admin';
+const url = 'mongodb://localhost:27017';
 const ObjectID = require('mongodb').ObjectID;
 const request = require('request');
 const nodemailer = require('nodemailer');
