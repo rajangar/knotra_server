@@ -173,7 +173,13 @@ io.on('connection', function(socket){
     if (ind < 0 ) {
       peopleList.push({socket: socket.id, userid: val})
     }
-    io.emit('setUserActive', "true")
+    // io.emit('setUserActive', "true")
+    let url = 'http://localhost:3000/api/setUserActive?userid=' + val + '&active=true'
+    request.put(url, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            console.log(body) // Print the google web page.
+         }
+    })
     console.log (peopleList)
   })
   socket.on('disconnect', function () {
