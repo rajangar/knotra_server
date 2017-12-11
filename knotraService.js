@@ -20,6 +20,7 @@ class Profile {
     email,
     firstName,
     lastName,
+    gender,
     phone,
     address,
     city,
@@ -360,6 +361,7 @@ class KnotraService{
         profile.email = this.req.body.email;
         profile.firstName = this.req.body.firstName;
         profile.lastName = this.req.body.lastName;
+        profile.gender = this.req.body.gender;
         profile.phone = this.req.body.phone;
         profile.address = this.req.body.address;
         profile.city = this.req.body.city;
@@ -415,6 +417,7 @@ class KnotraService{
                 "email": profile.email,
                 "firstname": profile.firstName,
                 "lastname": profile.lastName,
+                "gender": profile.gender,
                 "adddetails":{"phone": profile.phone,
                 "address": profile.address,
                 "city": profile.city},
