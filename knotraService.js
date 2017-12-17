@@ -614,7 +614,11 @@ class KnotraService{
                         if (doc._id == id1) {
                             userList.push(doc)
                         } else {
-                            userList.push(doc.skillarray)
+                            let sendInfo = { "firstname": doc.firstname,
+                                             "lastname": doc.lastname }
+                            userList.push(sendInfo)
+                            // userList.push(doc.designation)
+                            // userList.push(doc.skillarray)
                         }
                     } else {
                         login = 'fail';
